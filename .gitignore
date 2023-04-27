@@ -143,17 +143,20 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
-/data/*
+data/*
 !/data/.keep
+!/data/metadata.json
+!/data/tn_population_by_tract.csv
 
-/shapefiles/*
+shapefiles/*
 !/shapefiles/.keep
+!/shapefiles/cb_2021_47_tract_500k.zip
 
-/inputs/*
+inputs/*
 !/inputs/.keep
 
-/work/*
+work/*
 !/work/.keep
 
-/outputs/*
+outputs/*
 !/outputs/.keep
