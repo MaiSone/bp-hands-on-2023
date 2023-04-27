@@ -1,5 +1,5 @@
 # bp-hands-on-2023
-NICAR23に参加して
+NICAR23
 
 .gitignore
 bin/configure_shell.sh
