@@ -66,7 +66,7 @@ export PATH=$PATH:./node_modules/.bin
 ```
 19. シェープファイルをgeojsonに変換
 ```
-shp2json inputs/cb_2021_47_tract_500k.shp -o work/tn_tracts.geo.json
+shp2json inputs/cb_2021_47_tract_500k.shp work/tn_tracts.geo.json
 ```
 20. 平面の地図にする
 ```
