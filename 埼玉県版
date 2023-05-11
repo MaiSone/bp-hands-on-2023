@@ -1,0 +1,83 @@
+N03-22_11_220101.geojsonをコピーしてsaitama.geojsonにする
+
+21 geojsonをndjson形式に分割
+ndjson-cat work/saitama.geo.json \
+  | ndjson-split 'd.features' \
+  > work/saitama.ndjson
+
+22 csvデータをndjsonに変換する
+
+csv2json -n work/saitama_data.csv \
+  | ndjson-map '{ id: d.code, population: +d.population }' \
+  > work/saitama_data.ndjson
+
+
+23  地図とcsvデータを結合する
+ndjson-join 'd.id' 'd.properties.N03_007' \
+  work/saitama_data.ndjson \
+  work/saitama.ndjson \
+  > work/saitama_marged.ndjson
+
+24. 結合したndjsonから人口密度を計算
+
+  cat work/saitama_marged.ndjson \
+  | ndjson-map '
+      d[1].properties.density = d[0].density,
+      d[1]
+    ' \
+  > work/saitama_marged_2.ndjson
+
+25 新しいndjsonからgeojsonを作成
+cat work/saitama_marged_2.ndjson \
+  | ndjson-reduce \
+  | ndjson-map '{ type: "FeatureCollection", features: d }' \
+  > work/saitama_marged.geo.json
+
+
+
+26  地図をgeojson形式からtopojson形式に変換
+cat work/saitama_marged.geo.json \
+  | geo2topo tracts=- \
+  > work/saitama_marged.topo.json
+  
+geo2topo -q 1e6 topojsonで使用したいobject名=hoge.geojson > fuga.topo.json
+
+geo2topo tracts=work/saitama_marged.geo.json > work/saitama_marged.topo.json  
+
+
+27  topojsonをきれいに整形する
+cat work/saitama_marged.topo.json \
+  | toposimplify -p 1 -f \
+  > work/saitama_marged_simplified.topo.json
+
+
+? 28 さらに整形。ファイルサイズを小さくする
+cat work/saitama_marged_simplified.topo.json \
+  | topoquantize 1e5 \
+  > work/saitama_marged_simplified_quantized.topo.json
+
+
+
+29  色を追加する
+cat work/saitama_marged_simplified_quantized.topo.json \
+  | topo2geo tracts=- \
+  | ndjson-map \
+      -r d3array=d3-array \
+      -r d3scale=d3-scale \
+      -r d3chroma=d3-scale-chromatic \
+      '
+        z = d3scale.scaleSequential(d3chroma.interpolateMagma).domain([100, 0]),
+        d.features.forEach((f) => {
+          f.properties.fill = z(Math.sqrt(f.properties.density));
+        }),
+        d
+      ' \
+  | ndjson-split 'd.features' \
+  > work/saitama_marged_simplified_quantized_colors.ndjson
+
+失敗　30  色をSVGに追加する
+cat work/saitama_marged_simplified_quantized_colors.ndjson \
+  | geo2svg -n --stroke none -p 1 -w 960 -h 960 \
+  > outputs/saitama.svg
+
+
