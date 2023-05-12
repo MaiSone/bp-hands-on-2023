@@ -1,3 +1,5 @@
+
+
 N03-22_11_220101.geojsonをコピーしてsaitama.geojsonにする
 
 
@@ -96,6 +98,6 @@ cat test/saitama_projected_marged_2_simplified_quantized_colors.ndjson \
   | geo2svg -n --stroke none -p 1 -w 960 -h 960 \
   > test/saitama.svg
 
-
+transform="rotate(-90)"
 
 
